@@ -38,9 +38,11 @@ class LeafDataset(Dataset):
             bboxes.append([x_min, y_min, x_max, y_max])
         bboxes = torch.as_tensor(bboxes, dtype=torch.float32)
         labels = torch.ones((len(bboxes),), dtype=torch.int64)  # only one class - leaf
+        image_id = torch.tensor([idx])
         target = {
             'boxes': bboxes,
             'labels': labels,
+            'image_id': image_id
         }
         return self.transforms(img), target
 
@@ -48,6 +50,7 @@ class LeafDataset(Dataset):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--path', '-p')
+    parser.add_argument('--batch', '-bs')
     args = parser.parse_args()
     # Create model
     model = fasterrcnn_resnet50_fpn(pretrained=True)
