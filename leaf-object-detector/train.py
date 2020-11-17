@@ -40,11 +40,13 @@ class LeafDataset(Dataset):
         labels = torch.ones((len(bboxes),), dtype=torch.int64)  # only one class - leaf
         image_id = torch.tensor([idx])
         area = (bboxes[:, 3] - bboxes[:, 1]) * (bboxes[:, 2] - bboxes[:, 0])
+        iscrowd = torch.zeros((len(bboxes),), dtype=torch.int64)
         target = {
             'boxes': bboxes,
             'labels': labels,
             'image_id': image_id,
-            'area': area
+            'area': area,
+            'iscrowd': iscrowd
         }
         return self.transforms(img), target
 
