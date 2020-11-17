@@ -55,6 +55,7 @@ if __name__ == '__main__':
     in_features = model.roi_heads.box_predictor.cls_score.in_features
     model.roi_heads.box_predictor = FastRCNNPredictor(in_features, classes)
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+    model.to(device)
     print(f'Using {device} for training')
 
     # Currently we have only 36 examples. We'll use 30 for training and 6 for validation
