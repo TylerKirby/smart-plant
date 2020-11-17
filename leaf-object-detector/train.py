@@ -54,7 +54,7 @@ if __name__ == '__main__':
     classes = 2  # one for the background
     in_features = model.roi_heads.box_predictor.cls_score.in_features
     model.roi_heads.box_predictor = FastRCNNPredictor(in_features, classes)
-    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+    device = torch.device('cuda:1') if torch.cuda.is_available() else torch.device('cpu')
     model.to(device)
     print(f'Using {device} for training')
 
