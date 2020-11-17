@@ -39,10 +39,12 @@ class LeafDataset(Dataset):
         bboxes = torch.as_tensor(bboxes, dtype=torch.float32)
         labels = torch.ones((len(bboxes),), dtype=torch.int64)  # only one class - leaf
         image_id = torch.tensor([idx])
+        area = (bboxes[:, 3] - bboxes[:, 1]) * (bboxes[:, 2] - bboxes[:, 0])
         target = {
             'boxes': bboxes,
             'labels': labels,
-            'image_id': image_id
+            'image_id': image_id,
+            'area': area
         }
         return self.transforms(img), target
 
@@ -64,7 +66,7 @@ if __name__ == '__main__':
     # Currently we have only 36 examples. We'll use 30 for training and 6 for validation
     dataset = LeafDataset(data_dir=args.path)
     train_set, val_set = torch.utils.data.random_split(dataset, [30, 6])
-    train_loader = DataLoader(train_set, batch_size=1, shuffle=True, collate_fn=collate_fn)
+    train_loader = DataLoader(train_set, batch_size=args.bs, shuffle=True, collate_fn=collate_fn)
     val_loader = DataLoader(val_set, batch_size=1, shuffle=False, collate_fn=collate_fn)
 
     # Training loop
