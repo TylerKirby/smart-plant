@@ -1,3 +1,4 @@
+import argparse
 import os
 from xml.etree import ElementTree
 
@@ -45,6 +46,9 @@ class LeafDataset(Dataset):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--path', '-p')
+    args = parser.parse_args()
     # Create model
     model = fasterrcnn_resnet50_fpn(pretrained=True)
     classes = 2  # one for the background
@@ -54,7 +58,7 @@ if __name__ == '__main__':
     print(f'Using {device} for training')
 
     # Currently we have only 36 examples. We'll use 30 for training and 6 for validation
-    dataset = LeafDataset(data_dir='/Users/tyler/Desktop/leaves_dataset')
+    dataset = LeafDataset(data_dir=args.path)
     train_set, val_set = torch.utils.data.random_split(dataset, [30, 6])
     train_loader = DataLoader(train_set, batch_size=1, shuffle=True, collate_fn=collate_fn)
     val_loader = DataLoader(val_set, batch_size=1, shuffle=False, collate_fn=collate_fn)
