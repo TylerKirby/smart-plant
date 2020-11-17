@@ -66,7 +66,7 @@ if __name__ == '__main__':
     # Currently we have only 36 examples. We'll use 30 for training and 6 for validation
     dataset = LeafDataset(data_dir=args.path)
     train_set, val_set = torch.utils.data.random_split(dataset, [30, 6])
-    train_loader = DataLoader(train_set, batch_size=args.batch, shuffle=True, collate_fn=collate_fn)
+    train_loader = DataLoader(train_set, batch_size=int(args.batch), shuffle=True, collate_fn=collate_fn)
     val_loader = DataLoader(val_set, batch_size=1, shuffle=False, collate_fn=collate_fn)
 
     # Training loop
