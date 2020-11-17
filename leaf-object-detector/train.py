@@ -93,4 +93,4 @@ if __name__ == '__main__':
             torch.save({
                 'epoch': e,
                 'model_state_dict': model.state_dict()},
-                f'model_checkpoints/midas_1.1_' + str(e) + 'EPOCH_checkpoint.pt')
+                f'leaf_od' + str(e) + 'EPOCH_checkpoint.pt')
