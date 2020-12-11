@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
 import { Camera } from 'expo-camera';
+import * as FileSystem from 'expo-file-system';
+import { RNS3 } from 'react-native-aws3';
+let camera
 
 export default function App() {
   const [hasPermission, setHasPermission] = useState(null);
@@ -14,6 +16,34 @@ export default function App() {
     })();
   }, []);
 
+  const takePicture = async () => {
+    const photo = await camera.takePictureAsync();
+    const uri = photo.uri;
+    let file = {
+      uri: uri,
+      name: "plant-picture.jpg",
+      type: "image/jpg"
+    }
+    let options = { encoding: FileSystem.EncodingType.Base64 };
+    let fileString = await FileSystem.readAsStringAsync(uri, options);
+    const s3Options = {
+      bucket: "smart-garden",
+      region: "us-east-2",
+      accessKey: process.env["AWS_ACCESS_KEY"],
+      secretKey: process.env["AWS_SECRET_KEY"],
+      successActionStatus: 201
+    }
+    RNS3.put(file, s3Options).then(resp => {
+      if (resp.status !== 201)
+        console.log(resp)
+        throw new Error("Failed to upload image to S3");
+
+      console.log(resp.body);
+      Alert.alert("Success");
+    }).catch(e => console.log(e))
+    let base64String = 'data:image/jpg;base64' + fileString;
+  }
+
   if (hasPermission === null) {
     return <View />;
   }
@@ -23,7 +53,9 @@ export default function App() {
   return (
     <View style={{ flex: 1 }}>
       <View style={{ flex: 1 }}>
-        <Camera style={{ flex: 1 }} type={type}>
+        <Camera style={{ flex: 1 }} type={type} ref={(r) => {
+          camera = r
+        }}>
           <View
             style={{
               flex: 1,
@@ -40,9 +72,7 @@ export default function App() {
                 borderRadius: 50,
                 marginBottom: 40
               }}
-              onPress={() => {
-                console.log('snapped photo')
-              }}>
+              onPress={() => takePicture()}>
               <Text style={{ fontSize: 18, margin: 10, color: '#32CD32', fontWeight: 'bold' }}> Capture </Text>
             </TouchableOpacity>
           </View>
