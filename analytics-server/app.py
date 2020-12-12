@@ -1,13 +1,23 @@
 import json
+import io
+
 import numpy as np
 import boto3
 from flask import Flask, request
+from flask_cors import CORS, cross_origin
+from PIL import Image
 from sklearn.gaussian_process import GaussianProcessRegressor
 
+from object_detector import ObjectDetector
+
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
-client = boto3.client('dynamodb', region_name='us-east-2')
+dynamo_client = boto3.client('dynamodb', region_name='us-east-2')
+s3_client = boto3.client('s3')
 
+detector = ObjectDetector()
 
 @app.route("/")
 def index():
@@ -19,10 +29,11 @@ def health():
     return 200
 
 @app.route("/sensor")
+@cross_origin()
 def get_sensor():
     row = str(request.args.get('row'))
     pos = str(request.args.get('pos'))
-    resp = client.get_item(
+    resp = dynamo_client.get_item(
         TableName='SoilSensor',
         Key={
             'Row': {'S': row},
@@ -46,6 +57,20 @@ def get_sensor():
         "soil_predicted": predicted_soil.flatten().tolist(),
         "light_observed": light_data.flatten().tolist(),
         "light_predicted": predicted_light.flatten().tolist()
+    }
+
+    return json.dumps(resp, indent=4)
+
+@app.route("/leaves")
+@cross_origin()
+def get_leaves():
+    obj = s3_client.get_object(Bucket='smart-garden', Key='plant-picture.jpg')['Body'].read()
+    img = Image.open(io.BytesIO(obj))
+    num_leaves, ann_img = detector.detect(img)
+
+    resp = {
+        "number_of_leaves": num_leaves,
+        "annotated_img": ann_img
     }
 
     return json.dumps(resp, indent=4)
