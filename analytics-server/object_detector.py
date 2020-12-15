@@ -2,6 +2,8 @@ import base64
 import io
 
 import torch
+import matplotlib
+matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 from PIL import Image
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor, fasterrcnn_resnet50_fpn
@@ -28,10 +30,12 @@ class ObjectDetector:
         conf_thres = 0.15
         plt.imshow(img)
         current_axis = plt.gca()
+        leaf_count = 0
         for i in range(len(prediction[0]['scores'])):
             obj = prediction[0]
             score = prediction[0]['scores'][i]
             if score > conf_thres:
+                leaf_count += 1
                 label = obj['labels'][i]
                 score = obj['scores'][i]
                 boxes = obj['boxes'][i]
@@ -39,9 +43,8 @@ class ObjectDetector:
                 xmin, ymin, xmax, ymax = int(xmin), int(ymin), int(xmax), int(ymax)
                 current_axis.add_patch(
                     plt.Rectangle((xmin, ymin), xmax - xmin, ymax - ymin, color='yellow', fill=False, linewidth=2))
-        number_of_leaves = len(prediction[0]['scores'])
         plt_bytes = io.BytesIO()
         plt.savefig(plt_bytes, format='jpg')
         plt_bytes.seek(0)
         plt_base64 = base64.b64encode(plt_bytes.read())
-        return number_of_leaves, "data:image/jpeg;base64," + plt_base64.decode('UTF-8')
+        return leaf_count, "data:image/jpeg;base64," + plt_base64.decode('UTF-8')

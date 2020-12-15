@@ -6,7 +6,7 @@ import boto3
 from flask import Flask, request
 from flask_cors import CORS, cross_origin
 from PIL import Image
-from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process import GaussianProcessRegressor, kernels
 
 from object_detector import ObjectDetector
 
@@ -45,11 +45,13 @@ def get_sensor():
     x = np.arange(len(soil_data)).reshape(-1, 1)
     predictive_range = np.arange(len(soil_data), len(soil_data) + 72).reshape(-1, 1)
 
-    soil_gp = GaussianProcessRegressor()
+    soil_kernel = kernels.RationalQuadratic()
+    soil_gp = GaussianProcessRegressor(kernel=soil_kernel)
     soil_gp.fit(x, soil_data)
     predicted_soil = soil_gp.predict(predictive_range)
 
-    light_gp = GaussianProcessRegressor()
+    light_kernel = kernels.RationalQuadratic()
+    light_gp = GaussianProcessRegressor(kernel=light_kernel)
     light_gp.fit(x, light_data)
     predicted_light = light_gp.predict(predictive_range)
     resp = {
