@@ -6,3 +6,5 @@ __pycache__/
 !.elasticbeanstalk/*.global.yml
 .ebextensions/
 *.zip
+*.pt
+.DS_Store

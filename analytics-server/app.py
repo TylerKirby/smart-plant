@@ -45,14 +45,16 @@ def get_sensor():
     x = np.arange(len(soil_data)).reshape(-1, 1)
     predictive_range = np.arange(len(soil_data), len(soil_data) + 72).reshape(-1, 1)
 
-    soil_kernel = kernels.RationalQuadratic()
+    soil_kernel = kernels.ExpSineSquared()
     soil_gp = GaussianProcessRegressor(kernel=soil_kernel)
     soil_gp.fit(x, soil_data)
+    print(f"Soil MLL: {soil_gp.log_marginal_likelihood_value_}")
     predicted_soil = soil_gp.predict(predictive_range)
 
-    light_kernel = kernels.RationalQuadratic()
+    light_kernel = kernels.ExpSineSquared()
     light_gp = GaussianProcessRegressor(kernel=light_kernel)
     light_gp.fit(x, light_data)
+    print(f"Light MLL: {light_gp.log_marginal_likelihood_value_}")
     predicted_light = light_gp.predict(predictive_range)
     resp = {
         "soil_observed": soil_data.flatten().tolist(),

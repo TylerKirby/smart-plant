@@ -7,5 +7,4 @@ General server for retrieving data and analytics on plant from AWS.
 3. Install the dependencies: `pip install -r requirements.txt`
 4. Start the server: `python app.py`
 
-The server will be hosted at `http://localhost:5000` when running locally. See `http://localhost:8000/docs`
-for available endpoints.
+The server will be hosted at `http://localhost:5000` when running locally.
