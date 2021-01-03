@@ -35,12 +35,12 @@ export default function App() {
     }
     RNS3.put(file, s3Options).then(resp => {
       if (resp.status !== 201)
-        console.log(resp)
+        console.log(resp.status)
         throw new Error("Failed to upload image to S3");
 
       console.log(resp.body);
-      Alert.alert("Success");
     }).catch(e => console.log(e))
+    Alert.alert("Success");
     let base64String = 'data:image/jpg;base64' + fileString;
   }
 
